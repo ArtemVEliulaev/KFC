@@ -26,7 +26,7 @@ def add_user(name, phone_number, user_id, language):
     connection = sqlite3.connect("data.db")
     sql = connection.cursor()
     sql.execute(f"INSERT INTO users (user_id, name, phone_number, reg_date, language) "
-                f"VALUES (?, ?, ?, ?);", (user_id, name, phone_number, datetime.now(), language))
+                f"VALUES (?, ?, ?, ?, ?);", (user_id, name, phone_number, datetime.now(), language))
     connection.commit()
 
 def check_user(user_id):
@@ -128,3 +128,8 @@ def delete_exact_product_from_cart(user_id, pr_id):
     sql.execute('DELETE FROM cart WHERE user_id =? and pr_id=?', (user_id, pr_id))
     connection.commit()
 
+def find_language_db(user_id):
+    connection = sqlite3.connect("data.db")
+    sql2 = connection.cursor()
+    a = sql2.execute("SELECT language FROM users WHERE user_id = ?;", (user_id,)).fetchone()
+    return a
