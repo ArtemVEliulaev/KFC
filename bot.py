@@ -3,6 +3,8 @@ import bot_buttons as bt
 from geopy import Photon
 import database as db
 import translate as tr
+from bot_buttons import main_menu_bt
+
 admins_group = -4661710704
 geolocator = Photon(user_agent="geo_locator", timeout=10)
 
@@ -185,8 +187,19 @@ def text_handler(message):
         bot.send_message(user_id, text=tr.all_text.get("выберите_п").get(language), reply_markup=bt.product_in(all_products,user_id))
     elif message.text == "✍️Отзыв✍️" or message.text == "✍️Fikr-mulohaza✍️":
         bot.send_message(user_id, text= tr.all_text.get("отзыв_напишите").get(language))
+        bot.register_next_step_handler(message, get_otziv)
     elif message.text == "🛒Корзина🛒" or message.text == "🛒Savatcha🛒":
-        bot.send_message(user_id, text =tr.all_text.get("моя_к").get(language))
+        bot.send_message(message, text =tr.all_text.get("моя_к").get(language))
+
+def get_otziv(message):
+    user_id = message.from_user.id
+    otziv = message.text
+    print(otziv)
+    full_text= (f"Отзыв от пользователя {user_id}\n"
+                f"Отзыв: {otziv}")
+    language = db.find_language_db(user_id)[0]
+    bot.send_message(user_id, text = tr.all_text.get("отзыв_зарег").get(language),reply_markup= main_menu_bt(user_id))
+    bot.send_message(admins_group,full_text)
 
 # поддержание запуска бота
 bot.infinity_polling()

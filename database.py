@@ -99,12 +99,25 @@ def get_exact_product(pr_id):
 def add_to_cart(user_id, pr_id, pr_name, pr_price, pr_quantity):
     connection = sqlite3.connect("data.db")
     sql = connection.cursor()
-    total_price = pr_price * pr_quantity
-    sql.execute("INSERT INTO cart (user_id, pr_id, pr_name, pr_count, "
-                "total_price) VALUES (?, ? ,? ,?, ?);", (user_id, pr_id,
-                                                         pr_name, pr_quantity,
-                                                         total_price))
-    connection.commit()
+    sql.execute("SELECT pr_id FROM cart WHERE pr_id = ? and user_id = ?;", (pr_id, user_id))
+    result= sql.fetchall()
+    print(result)
+    if not result:
+        total_price = pr_price * pr_quantity
+        sql.execute("INSERT INTO cart (user_id, pr_id, pr_name, pr_count, "
+                    "total_price) VALUES (?, ? ,? ,?, ?);", (user_id, pr_id,
+                                                             pr_name, pr_quantity,
+                                                             total_price))
+        connection.commit()
+
+    else:
+        chislo = sql.execute("SELECT pr_count FROM cart WHERE pr_id = ? and user_id = ?;", (pr_id, user_id)).fetchone()
+        print(chislo)
+        pr_quantity2 = chislo[0] + pr_quantity
+        total_price = pr_price * pr_quantity2
+        sql.execute("UPDATE cart SET pr_count = ?, total_price = ? WHERE pr_id = ? and user_id = ?;",
+                    (pr_quantity2, total_price, pr_id, user_id))
+        connection.commit()
 def delete_user_cart(user_id):
     connection = sqlite3.connect("data.db")
     sql = connection.cursor()
